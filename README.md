@@ -14,11 +14,11 @@
 ## 참여 방법
 
 1. 이 저장소를 Fork 하여 내 저장소를 만듭니다.
-2. web/img/users 디렉토리에 내 플레이어 이미지 파일을 넣습니다.
+2. lib/Users 디렉토리에 __{MyUniqueName}.php__ 로 클래스 파일을 만듭니다.
+3. web/img/users 디렉토리에 내 플레이어 이미지 파일을 넣습니다.
    - 파일 포맷 : PNG
-   - 파일 이름 : __{나의_GitHub_Username}.png__
+   - 파일 이름 : __{클래스명과 동일}.png__
    - 이미지 크기 : 가로세로 192px 정사각형
-3. lib/Users 디렉토리에 __{나의_GitHub_Username}.php__ 로 클래스 파일을 만듭니다.
 4. lib/Users/SampleUser.php 파일의 예제 코드를 참고하여 나만의 코드를 작성합니다.
 5. 내 저장소에 커밋 후 __develop 브랜치__ 로 보내는 Pull Request를 생성합니다.
 6. MPUG 운영진이 코드를 검토 후 병합합니다.
