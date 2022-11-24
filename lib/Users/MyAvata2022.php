@@ -10,7 +10,7 @@ use App\ActionEnum;
  * 본인이 개발한 클래스에 대한 소개를 주석에 자유롭게 작성해주세요.
  * 이 예제 코드를 참고하여 본인만의 클래스를 만들어주세요.
  */
-class SampleUser implements \App\UserInterface
+class MyAvata2022 implements \App\UserInterface
 {
     /**
      * 게임 화면에 표시될 플레이어 이름입니다.
@@ -19,7 +19,7 @@ class SampleUser implements \App\UserInterface
      */
     public function getName(): string
     {
-        return 'MPUG';
+        return '마이아바타';
     }
 
     /**
