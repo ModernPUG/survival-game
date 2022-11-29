@@ -6,11 +6,15 @@ namespace App;
 
 class Player
 {
+    private const MAX_SHIELD = 2;
+
     public readonly string $id;
 
     public readonly string $name;
 
     private int $hp = 5;
+
+    private int $shield = 0;
 
     public function __construct(
         private readonly Map $map,
@@ -33,8 +37,20 @@ class Player
         return $this->hp;
     }
 
+    public function addShield(): void
+    {
+        if ($this->shield < self::MAX_SHIELD) {
+            ++$this->shield;
+        }
+    }
+
     public function damage(): void
     {
+        if ($this->shield > 0) {
+            --$this->shield;
+            return;
+        }
+
         if ($this->hp > 0) {
             --$this->hp;
         }
@@ -52,7 +68,13 @@ class Player
 
         $pos = $this->getPos();
         $tile_info_table = $this->map->getTileInfoTable();
-        $action_enum = $this->user->action($pos->x, $pos->y, $tile_info_table);
+        $player_info = new PlayerInfo(
+            x: $pos->x,
+            y: $pos->y,
+            hp: $this->hp,
+            shield: $this->shield
+        );
+        $action_enum = $this->user->action($player_info, $tile_info_table);
         $this->map->actionPlayer($this, $action_enum);
     }
 
@@ -72,6 +94,8 @@ class Player
             'id' => $this->id,
             'name' => $this->name,
             'hp' => $this->hp,
+            'shield' => $this->shield,
+            'message' => $this->user->getMessage(),
             'x' => $x,
             'y' => $y,
         ];

@@ -6,6 +6,7 @@ namespace App;
 
 enum ActionEnum
 {
+    case Hold;
     case Up;
     case Down;
     case Left;

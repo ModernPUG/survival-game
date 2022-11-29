@@ -17,7 +17,7 @@ export class Game
     #pixiApp;
     #playerList = {};
     #boomList = {};
-    #shieldList = [];
+    #shieldList = {};
 
     #logIndex = -1;
     #isStop = false;
@@ -113,26 +113,35 @@ export class Game
             let playSoundBoom = false;
             const objectDataList = playDataListLog[this.#logIndex];
             objectDataList.forEach(playData => {
-                if (playData.type == 'player') {
-                    let player = this.#playerList[playData.id];
+                switch (playData.type) {
+                    case 'player':
+                        let player = this.#playerList[playData.id];
 
-                    if (player) {
-                        player.updateData(playData);
-                    } else {
-                        player = new Player(this, playData);
-                        this.#playerList[player.id] = player;
-                        this.#elDashboard.append(player.elPlayerInfo);
-                    }
-                } else if (playData.type == 'reset_shield') {
-                    this.#shieldList.forEach(shield => shield.destroy());
-                    this.#shieldList = [];
-                } else if (playData.type == 'shield') {
-                    const shield = new Shield(this, playData);
-                    this.#shieldList.push(shield);
-                } else if (playData.type == 'boom') {
-                    const boom = new Boom(this, playData);
-                    this.#boomList[boom.id] = boom;
-                    playSoundBoom = true;
+                        if (player) {
+                            player.updateData(playData);
+                        } else {
+                            player = new Player(this, playData);
+                            this.#playerList[player.id] = player;
+                            this.#elDashboard.append(player.elPlayerInfo);
+                        }
+                        break;
+
+                    case 'shield':
+                        const shield = new Shield(this, playData);
+                        this.#shieldList[shield.id] = shield;
+                        break;
+
+                    case 'remove_shield':
+                        const id = playData.shield_id;
+                        this.#shieldList[id].destroy();
+                        delete this.#shieldList[id];
+                        break;
+
+                    case 'boom':
+                        const boom = new Boom(this, playData);
+                        this.#boomList[boom.id] = boom;
+                        playSoundBoom = true;
+                        break;
                 }
             });
 
