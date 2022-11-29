@@ -15,6 +15,8 @@ class Map
     /** @var array<string,Tile> */
     private array $tile_by_player = [];
 
+    private int $shield_count = 0;
+
     public function __construct(
         private int $col_num,
         private int $row_num,
@@ -31,7 +33,20 @@ class Map
         }
     }
 
-    private function randNoplayerTile(): ?Tile
+    public function getPlayerCount(): int
+    {
+        return count($this->tile_by_player);
+    }
+
+    public function getShieldCount(): int
+    {
+        return $this->shield_count;
+    }
+
+    /**
+     * @return Tile[]
+     */
+    private function noplayerTileList(): array
     {
         /** @var Tile[] $noplayer_tile_list */
         $noplayer_tile_list = [];
@@ -41,6 +56,57 @@ class Map
             }
         }
 
+        return $noplayer_tile_list;
+    }
+
+    /**
+     * @return Pos[]
+     */
+    public function noplayerPosList(): array
+    {
+        $noplayer_tile_list = $this->noplayerTileList();
+
+        $pos_list = [];
+        foreach ($noplayer_tile_list as $tile) {
+            $pos_list[] = $tile->pos;
+        }
+
+        return $pos_list;
+    }
+
+    /**
+     * @return Pos[]
+     */
+    public function shieldPosList(): array
+    {
+        $pos_list = [];
+        foreach ($this->tile_list as $tile) {
+            if ($tile->hasShield()) {
+                $pos_list[] = $tile->pos;
+            }
+        }
+
+        return $pos_list;
+    }
+
+    /**
+     * @return Pos[]
+     */
+    public function noshieldPosList(): array
+    {
+        $pos_list = [];
+        foreach ($this->tile_list as $tile) {
+            if (!$tile->hasShield()) {
+                $pos_list[] = $tile->pos;
+            }
+        }
+
+        return $pos_list;
+    }
+
+    private function randNoplayerTile(): ?Tile
+    {
+        $noplayer_tile_list = $this->noplayerTileList();
         if (!$noplayer_tile_list) {
             return null;
         }
@@ -108,6 +174,9 @@ class Map
         $pos_y = $pos->y;
 
         switch ($action_enum) {
+            case ActionEnum::Hold:
+                return;
+
             case ActionEnum::Up:
                 $pos_y -= 1;
                 break;
@@ -152,6 +221,14 @@ class Map
     {
         $tile = $this->tile_table[$pos->y][$pos->x];
         $tile->setShield(true);
+        ++$this->shield_count;
+    }
+
+    public function removeShield(Pos $pos): void
+    {
+        $tile = $this->tile_table[$pos->y][$pos->x];
+        $tile->setShield(false);
+        --$this->shield_count;
     }
 
     public function hasShieldByPos(Pos $pos): bool
@@ -194,15 +271,5 @@ class Map
         }
 
         return $info_list;
-    }
-
-    public function draw(): void
-    {
-        foreach ($this->tile_table as $row_tiles) {
-            foreach ($row_tiles as $tile) {
-                echo $tile;
-            }
-            echo "\n";
-        }
     }
 }
