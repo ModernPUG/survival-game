@@ -48,14 +48,14 @@ class SampleUser implements \App\UserInterface
      */
     public function action(\App\PlayerInfo $player_info, array $tile_info_table): ActionEnum
     {
-        // 해당 턴 수 마다 폭발이 발생 합니다.
-        Game::BOOM_TURNS;
+        Game::BOOM_TURNS; // 해당 턴 수 마다 폭발이 발생 합니다.
+        Game::mapColNum(); // 맵의 가로 개수
+        Game::mapRowNum(); // 맵의 세로 개수
 
-        // 맵의 가로 개수
-        Game::mapColNum();
-
-        // 맵의 세로 개수
-        Game::mapRowNum();
+        $player_info->x; // 플레이어 가로 위치
+        $player_info->y; // 플레이어 세로 위치
+        $player_info->hp; // 플레이어 HP
+        $player_info->shield; // 플레이어 보호막
 
         // 2차원 배열 타일 정보 전체 확인
         foreach ($tile_info_table as $y => $tile_info_rows) {
