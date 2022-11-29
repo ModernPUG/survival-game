@@ -8,6 +8,11 @@ use App\PlayerInfo;
 use App\TileInfo;
 use App\UserInterface;
 
+/**
+ * 저의 캐릭터 클래서는 가장 가까운 방어막으로 이동하도록 합니다.
+ * 방어막이 인접하여 1개 이상인 경우 임의의 하나를 선택하여 해당 방향으로 이동합니다. 인접한 방어막이 없는 경우에는
+ * 이동 가능한 빈 공간 중 방어막이 가장 가까운 것을 선택하여 이동합니다.
+ */
 class JHansol implements UserInterface {
     private const UP        = 0;
     private const DOWN      = 1;
@@ -54,6 +59,7 @@ class JHansol implements UserInterface {
             if($val) {
                 if($val->exist_shield && !$val->exist_player) $shields[] = $idx;
                 else if(!$val->exist_player) $blanks[] = [
+                    // 방향 정보와 방어막까지의 거리를 계산하기 위한 좌표를 포함하여 빈공간 정보를 저장
                     'idx' => $idx,
                     'x' => $playerInfo->x + (self::LEFT == $idx ? -1 : (self::RIGHT == $idx ? 1 : 0)),
                     'y' => $playerInfo->y + (self::UP == $idx ? -1 : (self::DOWN == $idx ? 1 : 0))
@@ -61,8 +67,8 @@ class JHansol implements UserInterface {
             }
         }
 
-        // 이동 가능한 바어막 타일이 있는 경우 바어막 중 임의의 하나 선택 방어막이 없고 빈공간이 있는 경우 역시 빈 공간 중 하나를 선택,
-        // 그렇지 않으면 4방향 중 임의의 방향 선택
+        // 이동 가능한 바어막 타일이 있는 경우 바어막 중 임의의 하나 선택 방어막이 없고 빈공간이 있는 경우 바어막과 가장 가까운 빈공간을 선택
+        // 한다. 그렇지 않으면 4방향 중 임의의 방향 선택
         if(count($shields) > 0) $direction = $shields[mt_rand(0, count($shields) - 1)];
         else if(count($blanks) > 0) $direction = $this->getNearestShield($blanks, $AllShields);
         else $direction = mt_rand(0, 3);
@@ -127,6 +133,4 @@ class JHansol implements UserInterface {
         shuffle($msg_list);
         return $msg_list[0];
     }
-
-
 }
