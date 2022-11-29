@@ -24,7 +24,7 @@ class JHansol implements UserInterface {
             self::UP => $player_y == 0 ? null : $tile_info_table[$player_y - 1][$player_x],
             self::DOWN => count($tile_info_table) - 1 == $player_y ? null : $tile_info_table[$player_y + 1][$player_x],
             self::LEFT => $player_x == 0 ? null : $tile_info_table[$player_x - 1][$player_y],
-            self::RIGHT => count($tile_info_table[$player_y]) - 1 == $player_x ? null : $tile_info_table[$player_x - 1][$player_y]
+            self::RIGHT => count($tile_info_table[$player_y]) - 1 == $player_x ? null : $tile_info_table[$player_x + 1][$player_y]
         ];
 
         // 이동 가능한 방어막 타일
