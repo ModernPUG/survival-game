@@ -106,7 +106,7 @@ class Game
 
     private function makeShieldDataList(): array
     {
-        $need_shield_count = $this->map->getPlayerCount();
+        $need_shield_count = $this->map->getPlayerCount() * 2;
         $shield_count = $this->map->getShieldCount();
 
         if ($shield_count >= $need_shield_count) {
