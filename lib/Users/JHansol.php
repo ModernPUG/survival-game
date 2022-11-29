@@ -27,6 +27,19 @@ class JHansol implements UserInterface {
             self::RIGHT => count($tile_info_table[$player_y]) - 1 == $player_x ? null : $tile_info_table[$player_x + 1][$player_y]
         ];
 
+        // 가장 가까운 방어막을 추출하기 위한 데이터 작성
+        $AllShields = [];
+        foreach($tile_info_table as $row_id => $cols) {
+            foreach($cols as $col_id => $info) {
+                if($info->exist_shield) {
+                    $AllShields[] = [
+                        'x' => $col_id,
+                        'y' => $row_id,
+                    ];
+                }
+            }
+        }
+
         // 이동 가능한 방어막 타일
         $shields = [];
         // 이동 가능한 빈 공간 타일
@@ -38,14 +51,18 @@ class JHansol implements UserInterface {
         foreach($t as $idx => $val) {
             if($val) {
                 if($val->exist_shield && !$val->exist_player) $shields[] = $idx;
-                else if(!$val->exist_player) $blanks[] = $idx;
+                else if(!$val->exist_player) $blanks[] = [
+                    'idx' => $idx,
+                    'x' => $player_x + (self::LEFT == $idx ? -1 : (self::RIGHT == $idx ? 1 : 0)),
+                    'y' => $player_y + (self::UP == $idx ? -1 : (self::DOWN == $idx ? 1 : 0))
+                ];
             }
         }
 
         // 이동 가능한 바어막 타일이 있는 경우 바어막 중 임의의 하나 선택 방어막이 없고 빈공간이 있는 경우 역시 빈 공간 중 하나를 선택,
         // 그렇지 않으면 4방향 중 임의의 방향 선택
         if(count($shields) > 0) $direction = $shields[mt_rand(0, count($shields) - 1)];
-        else if(count($blanks) > 0) $direction = $blanks[mt_rand(0, count($blanks) - 1)];
+        else if(count($blanks) > 0) $direction = $this->getNearestShield($blanks, $AllShields);
         else $direction = mt_rand(0, 3);
 
         return match ($direction) {
@@ -54,5 +71,41 @@ class JHansol implements UserInterface {
             2 => ActionEnum::Left,
             3 => ActionEnum::Right,
         };
+    }
+
+    private function getNearestShield($blanks,  $shieldInfos) : int {
+        $nearestShield2 = null;
+        foreach( $blanks as $blank) {
+            $nearestShield = null;
+            foreach( $shieldInfos as $info) {
+                $dist = sqrt(pow($info['x'] - $blank['x'], 2) + pow($info['y'] - $blank['y'], 2));
+                if(!$nearestShield) {
+                    $nearestShield = [
+                        'x' => $info['x'],
+                        'y' => $info['y'],
+                        'dist' => $dist
+                    ];
+                }
+                else if($nearestShield['dist'] > $dist) {
+                    $nearestShield = [
+                        'x' => $info['x'],
+                        'y' => $info['y'],
+                        'dist' => $dist
+                    ];
+                }
+            }
+
+            if(!$nearestShield2) $nearestShield2 = [
+                'idx' => $blank['idx'],
+                'dist' => $nearestShield['dist']
+            ];
+            else if($nearestShield2['dist'] > $nearestShield['dist']) $nearestShield2 = [
+                'idx' => $blank['idx'],
+                'dist' => $nearestShield['dist']
+            ];
+        }
+
+
+        return $nearestShield2['idx'];
     }
 }
