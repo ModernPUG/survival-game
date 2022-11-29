@@ -3,6 +3,8 @@
 namespace Users;
 
 use App\ActionEnum;
+use App\Game;
+use App\PlayerInfo;
 use App\TileInfo;
 use App\UserInterface;
 
@@ -17,14 +19,14 @@ class JHansol implements UserInterface {
         return 'j-Hansol';
     }
 
-    public function action(int $player_x, int $player_y, array $tile_info_table): ActionEnum {
+    public function action(PlayerInfo $playerInfo, array $tile_info_table): ActionEnum {
         // 이동 가능 타일 점검
         // 총 4개 중 타일의 가장자리에서 이동을 체크한 후 이동 가능하면 타일 정보를 그렇지 않으면 Null 지정
         $t = [
-            self::UP => $player_y == 0 ? null : $tile_info_table[$player_y - 1][$player_x],
-            self::DOWN => count($tile_info_table) - 1 == $player_y ? null : $tile_info_table[$player_y + 1][$player_x],
-            self::LEFT => $player_x == 0 ? null : $tile_info_table[$player_x - 1][$player_y],
-            self::RIGHT => count($tile_info_table[$player_y]) - 1 == $player_x ? null : $tile_info_table[$player_x + 1][$player_y]
+            self::UP => $playerInfo->y == 0 ? null : $tile_info_table[$playerInfo->y - 1][$playerInfo->x],
+            self::DOWN => Game::mapRowNum() - 1 == $playerInfo->y ? null : $tile_info_table[$playerInfo->y + 1][$playerInfo->x],
+            self::LEFT => $playerInfo->x == 0 ? null : $tile_info_table[$playerInfo->x - 1][$playerInfo->y],
+            self::RIGHT => Game::mapColNum() - 1 == $playerInfo->x ? null : $tile_info_table[$playerInfo->x + 1][$playerInfo->y]
         ];
 
         // 가장 가까운 방어막을 추출하기 위한 데이터 작성
@@ -53,8 +55,8 @@ class JHansol implements UserInterface {
                 if($val->exist_shield && !$val->exist_player) $shields[] = $idx;
                 else if(!$val->exist_player) $blanks[] = [
                     'idx' => $idx,
-                    'x' => $player_x + (self::LEFT == $idx ? -1 : (self::RIGHT == $idx ? 1 : 0)),
-                    'y' => $player_y + (self::UP == $idx ? -1 : (self::DOWN == $idx ? 1 : 0))
+                    'x' => $playerInfo->x + (self::LEFT == $idx ? -1 : (self::RIGHT == $idx ? 1 : 0)),
+                    'y' => $playerInfo->y + (self::UP == $idx ? -1 : (self::DOWN == $idx ? 1 : 0))
                 ];
             }
         }
@@ -73,6 +75,12 @@ class JHansol implements UserInterface {
         };
     }
 
+    /**
+     * 이동 가능 빈공간과 방어막과 가장 가까운 공간의 방향을 선택하여 리턴한다.
+     * @param $blanks
+     * @param $shieldInfos
+     * @return int
+     */
     private function getNearestShield($blanks,  $shieldInfos) : int {
         $nearestShield2 = null;
         foreach( $blanks as $blank) {
@@ -108,4 +116,17 @@ class JHansol implements UserInterface {
 
         return $nearestShield2['idx'];
     }
+
+    public function getMessage(): string {
+        $msg_list = [
+            '내가 승자다.',
+            '방어막!!?? 방어막 어딨어?',
+            '방어막으로 고고씽~~',
+            '마지막까지 살아 남을꺼야 난~~~'
+        ];
+        shuffle($msg_list);
+        return $msg_list[0];
+    }
+
+
 }
