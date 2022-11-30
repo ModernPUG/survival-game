@@ -48,20 +48,25 @@ class TerrorboyUser implements \App\UserInterface
     public function action(\App\PlayerInfo $player_info, array $tile_info_table): ActionEnum
     {
         /*
+            // !테스트를 위해 플레이어 위치 고정
+                $this->testPY = 3;
+                $this->testPX = 6;
+
             // ! 테스트를 위해 쉴드 더미 만듦
             $this->testShield = array_fill(0, Game::mapRowNum(), array_fill(0, Game::mapColNum(), false));
             // ! X 위치 쉴드 더미
-                $this->testShield[3][0] = true;
+                //$this->testShield[3][0] = true;
                 //$this->testShield[3][3] = true;
-                $this->testShield[3][9] = true;
+                //$this->testShield[3][9] = true;
             // ! Y 위치 쉴드 더미
-                $this->testShield[0][6] = true;
-                $this->testShield[1][6] = true;
-                $this->testShield[7][6] = true;
-
-            // !테스트를 위해 플레이어 위치 고정
-            $this->testPY = 3;
-            $this->testPX = 6;
+                //$this->testShield[0][6] = true;
+                //$this->testShield[1][6] = true;
+                //$this->testShield[7][6] = true;
+            // ! 대각선 쉴드 더미
+                //$this->testShield[2][5] = true; // 왼쪽위
+                //$this->testShield[2][7] = true; // 오른쪽위
+                //$this->testShield[4][5] = true; // 왼쪽아래
+                $this->testShield[4][7] = true; // 오른쪽아래
         */
 
         // 멘트 처리
@@ -129,6 +134,33 @@ class TerrorboyUser implements \App\UserInterface
         // 내 위치 기준으로 십자 방향으로 쉴드 체크 배열 만듦
         $cross = ['y'=>[], 'x'=>[]];
         for ($x=0; $x<$mx; $x++) {
+            // 왼쪽 위
+            $tlShield = ($this->testShield[$py-1][$x-1]??$tile_info_table[$py-1][$x-1]->exist_shield??false);
+            if (!empty($tlShield)) {
+                $cross['x'][2][] = [
+                    'y'=>$py-1,
+                    'x'=>($x-1),
+                    'cross_point'=>-2, // 십자열 기준 거리
+                    'cross_point2'=>2, // 십자열 기준 거리 - 양수화
+                    'distance'=>(($mx+1)*-1), // 내위치로 부터의 거리
+                    'distance2'=>($mx+1), // 내위치로 부터의 거리 - 양수화
+                ];
+            }
+
+            // 오른쪽 위
+            $trShield = ($this->testShield[$py-1][$x+1]??$tile_info_table[$py-1][$x+1]->exist_shield??false);
+            if (!empty($trShield)) {
+                $cross['x'][2][] = [
+                    'y'=>$py+1,
+                    'x'=>($x+1),
+                    'cross_point'=>2, // 십자열 기준 거리
+                    'cross_point2'=>2, // 십자열 기준 거리 - 양수화
+                    'distance'=>(($mx-1)*-1), // 내위치로 부터의 거리
+                    'distance2'=>($mx-1), // 내위치로 부터의 거리 - 양수화
+                ];
+            }
+
+            // 십자열
             if ($px == $x) {
                 continue;
             }
@@ -147,6 +179,33 @@ class TerrorboyUser implements \App\UserInterface
             }
         }
         for ($y=0; $y<$my; $y++) {
+            // 왼쪽 아래
+            $blShield = ($this->testShield[$y+1][$px-1]??$tile_info_table[$y+1][$px-1]->exist_shield??false);
+            if (!empty($blShield)) {
+                $cross['x'][2][] = [
+                    'y'=>$y+1,
+                    'x'=>$px-1,
+                    'cross_point'=>-2, // 십자열 기준 거리
+                    'cross_point2'=>2, // 십자열 기준 거리 - 양수화
+                    'distance'=>($mx-1), // 내위치로 부터의 거리
+                    'distance2'=>($mx-1), // 내위치로 부터의 거리 - 양수화
+                ];
+            }
+
+            // 오른쪽 위
+            $brShield = ($this->testShield[$y+1][$px+1]??$tile_info_table[$y+1][$px+1]->exist_shield??false);
+            if (!empty($brShield)) {
+                $cross['x'][2][] = [
+                    'y'=>$y-1,
+                    'x'=>$px+1,
+                    'cross_point'=>2, // 십자열 기준 거리
+                    'cross_point2'=>2, // 십자열 기준 거리 - 양수화
+                    'distance'=>($mx+1), // 내위치로 부터의 거리
+                    'distance2'=>($mx+1), // 내위치로 부터의 거리 - 양수화
+                ];
+            }
+
+            // 십자열
             if ($py == $y) {
                 continue;
             }
