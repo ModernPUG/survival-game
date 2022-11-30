@@ -47,6 +47,7 @@ class TerrorboyUser implements \App\UserInterface
      */
     public function action(\App\PlayerInfo $player_info, array $tile_info_table): ActionEnum
     {
+        /*
             // ! 테스트를 위해 쉴드 더미 만듦
             $this->testShield = array_fill(0, Game::mapRowNum(), array_fill(0, Game::mapColNum(), false));
             // ! X 위치 쉴드 더미
@@ -61,6 +62,7 @@ class TerrorboyUser implements \App\UserInterface
             // !테스트를 위해 플레이어 위치 고정
             $this->testPY = 3;
             $this->testPX = 6;
+        */
 
         // 멘트 처리
         if ($player_info->hp <= 1) {
