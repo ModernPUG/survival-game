@@ -127,7 +127,7 @@ class TerrorboyUser implements \App\UserInterface
         $around = []; // 내주변 이벤트 배열
 
         // 내 위치 기준으로 십자 방향으로 쉴드 체크 배열 만듦
-        $cros = ['y'=>[], 'x'=>[]];
+        $cross = ['y'=>[], 'x'=>[]];
         for ($x=0; $x<$mx; $x++) {
             if ($px == $x) {
                 continue;
@@ -135,12 +135,12 @@ class TerrorboyUser implements \App\UserInterface
             $checkShield = ($this->testShield[$py][$x]??$tile_info_table[$py][$x]->exist_shield??false);
             if (!empty($checkShield)) {
                 $pointX = $x-$px;
-                $crosPoint = ($x-$px)*(($px <=> $x)*-1);
-                $cros['x'][$crosPoint][] = [
+                $crossPoint = ($x-$px)*(($px <=> $x)*-1);
+                $cross['x'][$crossPoint][] = [
                     'y'=>$py,
                     'x'=>$x,
-                    'cros_point'=>$x-$px, // 십자열 기준 거리
-                    'cros_point2'=>$crosPoint, // 십자열 기준 거리 - 양수화
+                    'cross_point'=>$x-$px, // 십자열 기준 거리
+                    'cross_point2'=>$crossPoint, // 십자열 기준 거리 - 양수화
                     'distance'=>$pointX, // 내위치로 부터의 거리
                     'distance2'=>$pointX*(($px <=> $x)*-1), // 내위치로 부터의 거리 - 양수화
                 ];
@@ -153,12 +153,12 @@ class TerrorboyUser implements \App\UserInterface
             $checkShield = ($this->testShield[$y][$px]??$tile_info_table[$y][$px]->exist_shield??false);
             if (!empty($checkShield)) {
                 $pointY = ($y*$mx)+$px;
-                $crosPoint = ($y-$py)*(($py <=> $y)*-1);
-                $cros['y'][$crosPoint][] = [
+                $crossPoint = ($y-$py)*(($py <=> $y)*-1);
+                $cross['y'][$crossPoint][] = [
                     'y'=>$y,
                     'x'=>$px,
-                    'cros_point'=>$y-$py, // 십자열 기준 거리
-                    'cros_point2'=>$crosPoint, // 십자열 기준 거리 - 양수화
+                    'cross_point'=>$y-$py, // 십자열 기준 거리
+                    'cross_point2'=>$crossPoint, // 십자열 기준 거리 - 양수화
                     'distance'=>($pointY-$point), // 내위치로 부터의 거리
                     'distance2'=>($pointY-$point)*(($py <=> $y)*-1), // 내위치로 부터의 거리 - 양수화
                 ];
@@ -166,19 +166,19 @@ class TerrorboyUser implements \App\UserInterface
         }
 
         // 정렬 변경 및 십자선 거리중 가장 가까운 값 구함
-        $crosX = $cros['x'];
-        $crosY = $cros['y'];
-        ksort($crosX);
-        $crosX = array_values($crosX);
-        ksort($crosY);
-        $crosY = array_values($crosY);
-        $crosXarray = $crosX[0]??null;
-        $crosYarray = $crosY[0]??null;
+        $crossX = $cross['x'];
+        $crossY = $cross['y'];
+        ksort($crossX);
+        $crossX = array_values($crossX);
+        ksort($crossY);
+        $crossY = array_values($crossY);
+        $crossXarray = $crossX[0]??null;
+        $crossYarray = $crossY[0]??null;
 
         // 근거리 배열만듦
-        if (count($crosX??[]) > 0) { // X축
-            foreach (($crosXarray??[]) as $k=>$v) {
-                $direction = ($v['cros_point'] <=> 0);
+        if (count($crossX??[]) > 0) { // X축
+            foreach (($crossXarray??[]) as $k=>$v) {
+                $direction = ($v['cross_point'] <=> 0);
                 if ($direction > 0) {
                     $around[] = 4;
                 }
@@ -187,9 +187,9 @@ class TerrorboyUser implements \App\UserInterface
                 }
             }
         }
-        if (count($crosY??[]) > 0) { // Y축
-            foreach (($crosYarray??[]) as $k=>$v) {
-                $direction = ($v['cros_point'] <=> 0);
+        if (count($crossY??[]) > 0) { // Y축
+            foreach (($crossYarray??[]) as $k=>$v) {
+                $direction = ($v['cross_point'] <=> 0);
                 if ($direction > 0) {
                     $around[] = 2;
                 }
