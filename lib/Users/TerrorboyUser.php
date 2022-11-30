@@ -123,7 +123,7 @@ class TerrorboyUser implements \App\UserInterface
         $py = ($this->testPY??$player_info->y??0); // 플레이어의 Y 위치
         $mx = (Game::mapColNum()??10); // 맵의 최대 X
         $my = (Game::mapRowNum()??10); // 맵의 최대 Y
-        $point = ($py*$mx)+$px; // 플래이어의 현재 위치
+        $point = ($py*$mx)+$px; // 플레이어의 현재 위치
         $around = []; // 내주변 이벤트 배열
 
         // 내 위치 기준으로 십자 방향으로 쉴드 체크 배열 만듦
@@ -221,7 +221,7 @@ class TerrorboyUser implements \App\UserInterface
             for ($x=0; $x<(Game::mapColNum()??10); $x++) {
                 $shield = ($this->testShield[$y][$x]??$tile_info_table[$y][$x]??false);
                 if ($shield === true) {
-                    if (($this->testPX??$player_info->x) == $x && ($this->testPX??$player_info->y) == $y) {
+                    if (($this->testPX??$player_info->x) == $x && ($this->testPY??$player_info->y) == $y) {
                         echo '✣';
                     } else {
                         echo '♦︎';
