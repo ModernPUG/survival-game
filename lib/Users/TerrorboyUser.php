@@ -51,13 +51,13 @@ class TerrorboyUser implements \App\UserInterface
             // ! 테스트를 위해 쉴드 더미 만듦
             $this->testShield = array_fill(0, Game::mapRowNum(), array_fill(0, Game::mapColNum(), false));
             // ! X 위치 쉴드 더미
-                //$this->testShield[3][0] = true;
+                $this->testShield[3][0] = true;
                 //$this->testShield[3][3] = true;
-                //$this->testShield[3][9] = true;
+                $this->testShield[3][9] = true;
             // ! Y 위치 쉴드 더미
-                //$this->testShield[0][6] = true;
-                //$this->testShield[1][6] = true;
-                //$this->testShield[7][6] = true;
+                $this->testShield[0][6] = true;
+                $this->testShield[1][6] = true;
+                $this->testShield[7][6] = true;
 
             // !테스트를 위해 플레이어 위치 고정
             $this->testPY = 3;
@@ -174,27 +174,37 @@ class TerrorboyUser implements \App\UserInterface
         $crossY = array_values($crossY);
         $crossXarray = $crossX[0]??null;
         $crossYarray = $crossY[0]??null;
+        $min = min([$crossXarray[0]['cross_point2']??INF, $crossYarray[0]['cross_point2']??INF]);
 
-        // 근거리 배열만듦
-        if (count($crossX??[]) > 0) { // X축
-            foreach (($crossXarray??[]) as $k=>$v) {
-                $direction = ($v['cross_point'] <=> 0);
-                if ($direction > 0) {
-                    $around[] = 4;
-                }
-                if ($direction < 0) {
-                    $around[] = 3;
+        // 최소 거리에 해당하는 근거리 데이터만 만듦
+        if ($min !== INF) {
+            // 근거리 배열만듦
+            if (count($crossX??[]) > 0) { // X축
+                foreach (($crossXarray??[]) as $k=>$v) {
+                    if ($min < $v['cross_point2']) {
+                        continue;
+                    }
+                    $direction = ($v['cross_point'] <=> 0);
+                    if ($direction > 0) {
+                        $around[] = 4;
+                    }
+                    if ($direction < 0) {
+                        $around[] = 3;
+                    }
                 }
             }
-        }
-        if (count($crossY??[]) > 0) { // Y축
-            foreach (($crossYarray??[]) as $k=>$v) {
-                $direction = ($v['cross_point'] <=> 0);
-                if ($direction > 0) {
-                    $around[] = 2;
-                }
-                if ($direction < 0) {
-                    $around[] = 1;
+            if (count($crossY??[]) > 0) { // Y축
+                foreach (($crossYarray??[]) as $k=>$v) {
+                    if ($min < $v['cross_point2']) {
+                        continue;
+                    }
+                    $direction = ($v['cross_point'] <=> 0);
+                    if ($direction > 0) {
+                        $around[] = 2;
+                    }
+                    if ($direction < 0) {
+                        $around[] = 1;
+                    }
                 }
             }
         }
