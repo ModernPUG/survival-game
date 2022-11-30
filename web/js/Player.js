@@ -9,6 +9,8 @@ export class Player {
     #id;
     #name;
     #hp;
+    #shield;
+    #message;
     #x;
     #y;
 
@@ -23,6 +25,8 @@ export class Player {
         this.#id = objectData.id;
         this.#name = objectData.name;
         this.#hp = objectData.hp;
+        this.#shield = objectData.shield;
+        this.#message = objectData.message;
         this.#x = objectData.x;
         this.#y = objectData.y;
 
@@ -48,6 +52,7 @@ export class Player {
         elPlayerInfo.setAttribute('name', this.#name);
         elPlayerInfo.setAttribute('img', imgSrc);
         elPlayerInfo.setAttribute('hp', this.#hp);
+        elPlayerInfo.setAttribute('shield', this.#shield);
         this.#elPlayerInfo = elPlayerInfo;
     }
 
@@ -61,6 +66,14 @@ export class Player {
 
     get hp() {
         return this.#hp;
+    }
+
+    get shield() {
+        return this.#shield;
+    }
+
+    get message() {
+        return this.#message;
     }
 
     get displayObject() {
@@ -84,20 +97,20 @@ export class Player {
     }
 
     updateData(objectData) {
-        if (
-            this.#hp == objectData.hp
-            && this.#x == objectData.x
-            && this.#y == objectData.y
-        ) {
+        if (this.#hp < 1) {
             return;
         }
 
         this.#hp = objectData.hp;
+        this.#shield = objectData.shield;
+        this.#message = objectData.message;
         this.#x = objectData.x;
         this.#y = objectData.y;
         this.#isPlaying = true;
 
         this.#elPlayerInfo.setAttribute('hp', this.#hp);
+        this.#elPlayerInfo.setAttribute('shield', this.#shield);
+        this.#elPlayerInfo.setAttribute('message', this.#message);
 
         if (this.#hp < 1) {
             this.#destroy();

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$game = new \App\Game(10, 10);
+$game = \App\Game::createOnce(10, 10);
 $game->play();
 ?>
 <!DOCTYPE html>

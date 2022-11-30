@@ -11,4 +11,9 @@ class Pos
         public readonly int $y
     ) {
     }
+
+    public function __toString()
+    {
+        return "{$this->x}-{$this->y}";
+    }
 }

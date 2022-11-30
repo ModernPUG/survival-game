@@ -7,6 +7,7 @@ export class Shield {
     #FRAME_DELAY = 20;
 
     #game;
+    #id;
     #width;
     #height;
     #displayObject;
@@ -17,6 +18,7 @@ export class Shield {
 
     constructor(game, objectData) {
         this.#game = game;
+        this.#id = objectData.id;
 
         const sizeRatio = this.#game.tileSize / this.#REAL_WIDTH;
         this.#width = this.#REAL_WIDTH * sizeRatio;
@@ -38,6 +40,10 @@ export class Shield {
 
         this.#displayObject = sprite;
         this.#game.pixiApp.stage.addChild(this.#displayObject);
+    }
+
+    get id() {
+        return this.#id;
     }
 
     get isPlaying() {

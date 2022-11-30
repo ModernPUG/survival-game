@@ -1,0 +1,8 @@
+composer.phar
+composer.lock
+yarn.lock
+yarn-error.log
+package-lock.json
+/vendor
+/node_modules
+/.*

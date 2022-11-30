@@ -5,25 +5,28 @@
 각자 자신의 플레이어 클래스를 개발하여 참여하는 게임입니다.
 각 플레이어 클래스 알고리즘에 따라 플레이어는 게임 맵을 돌아다닙니다.
 맵에서는 랜덤으로 폭발이 발생하고 폭발에 당한 플레이어는 HP가 줄어들고 HP가 0이 되면 탈락합니다.
-보호막에 들어가서 폭발을 피할 수도 있습니다.
+보호막을 먹으면 폭발에 당할 시 HP 대신 보호막이 줄어듭니다.
 마지막까지 살아남는 플레이어가 승리합니다.
 
 아래 스크린샷을 클릭하여 영상으로 확인해보세요.
-[![2022년 MPUG 송년회 게임 트레일러](https://img.youtube.com/vi/75UJcO2I8Ys/maxresdefault.jpg)](https://youtu.be/75UJcO2I8Ys)
+[![2022년 MPUG 송년회 게임 트레일러](https://img.youtube.com/vi/EJ7i_nKE7Ag/maxresdefault.jpg)](https://youtu.be/EJ7i_nKE7Ag)
 
 ## 참여 방법
 
+코딩을 하지 않아도 참여할 수 있습니다. 자세한 내용은 아래 링크를 확인해주세요.
+
+> [코딩 없는 간단한 참여 방법 바로가기](https://blog.naver.com/modernpug/222934394409)
+
 1. 이 저장소를 Fork 하여 내 저장소를 만듭니다.
-2. 코딩은 __develop 브랜치__ 에서 합니다.
-3. lib/Users 디렉토리에 __{MyUniqueName}.php__ 로 클래스 파일을 만듭니다.
-4. web/img/users 디렉토리에 내 플레이어 이미지 파일을 넣습니다.
+2. lib/Users 디렉토리에 __{MyUniqueName}.php__ 로 클래스 파일을 만듭니다.
+3. web/img/users 디렉토리에 내 플레이어 이미지 파일을 넣습니다.
    - 파일 포맷 : PNG
    - 파일 이름 : __{클래스명과 동일}.png__
-   - 이미지 크기 : 가로세로 192px 정사각형
-5. lib/Users/SampleUser.php 파일의 예제 코드를 참고하여 나만의 코드를 작성합니다.
-6. 내 저장소에 커밋 후 __develop 브랜치__ 로 보내는 Pull Request를 생성합니다.
-7. MPUG 운영진이 코드를 검토 후 병합합니다.
-8. 경품 당첨 시 __GitHub 프로필에 등록된 이메일__ 로 연락드립니다.
+   - 이미지 크기 : 가로세로 192px 이하 정사각형
+4. lib/Users/SampleUser.php 파일의 예제 코드를 참고하여 나만의 코드를 작성합니다.
+5. 내 저장소에 커밋 후 __event2022 브랜치__ 로 보내는 Pull Request를 생성합니다.
+6. MPUG 운영진이 코드를 검토 후 병합합니다.
+7. 경품 당첨 시 __GitHub 프로필에 등록된 이메일__ 로 연락드립니다.
 
 ## 실행 방법
 
@@ -54,7 +57,7 @@ composer와 npm(또는 yarn), docker-compose가 필요합니다.
     docker-compose up -d
     ```
 
-4. 웹브라우저에서 https://localhost:8443 접속
+4. 웹브라우저에서 https://localhost:8443 접속합니다.
 이때 SSL 인증서 오류는 무시합니다.
 
 ## 클래스 코딩 안내
@@ -63,6 +66,8 @@ composer와 npm(또는 yarn), docker-compose가 필요합니다.
 
 - SampleUser 클래스 처럼 랜덤 이동으로 코딩해도 괜찮습니다.
 
+- 본인이 만든 클래스의 프로퍼티와 메소드는 자유롭게 구성해도 됩니다.
+
 - 플레이어가 이동하려는 타일에 다른 플레이어가 존재하면 이동이 불가능합니다.
 
     ```php
@@ -70,7 +75,7 @@ composer와 npm(또는 yarn), docker-compose가 필요합니다.
      * 특정 x,y 위치에 다른 플레이어가 있는지 확인하는 코드
      */
 
-    $tile_info = $tile_info_table[$y][$x];
+    $tile_info = $tile_info_table[$player_info->y][$player_info->x];
 
     if ($tile_info->exist_player) {
         echo '있다';
@@ -79,14 +84,14 @@ composer와 npm(또는 yarn), docker-compose가 필요합니다.
     }
     ```
 
-- 방어막이 있는 타일에 플레이어가 있으면 폭발 공격을 받지 않습니다.
+- 방어막이 있는 타일에 플레이어가 있으면 방어막을 획득합니다.
 
     ```php
     /*
      * 특정 x,y 위치에 방어막이 있는지 확인하는 코드
      */
 
-    $tile_info = $tile_info_table[$y][$x];
+    $tile_info = $tile_info_table[$player_info->y][$player_info->x];
 
     if ($tile_info->exist_shield) {
         echo '있다';
@@ -97,4 +102,20 @@ composer와 npm(또는 yarn), docker-compose가 필요합니다.
 
 - Exception이 발생하면 플레이어는 이동하지 않습니다.
 
-- 게임에 영향을 주거나 시스템에 위험한 행위를 시도하는 코드는 허가되지 않습니다.
+- 게임에 영향을 주거나 이벤트의 목적을 벗어나는 코드는 허가되지 않습니다.
+
+## 게임 동작 방식
+
+실제 게임은 PHP로 실행되어 최종 결과까지의 플레이 로그가 생성됩니다.
+그리고 생성된 플레이 로그를 JS를 사용하여 재생하는 방식입니다.
+
+## 사용된 기술
+
+- [FrankenPHP](https://frankenphp.dev/)
+- [PixiJS](https://pixijs.com/)
+- [Web Components](https://developer.mozilla.org/ko/docs/Web/Web_Components)
+
+## 알려진 오류
+
+- 갑자기 JS 파일이 로드가 안되는 등 웹서버 동작에 이상이 생기면 도커 컨테이너의 문제일 가능성이 높습니다.
+도커 컨테이너를 지우고 새롭게 다시 실행합니다.
