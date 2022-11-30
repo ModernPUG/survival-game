@@ -14,6 +14,9 @@ use App\Game;
 class TerrorboyUser implements \App\UserInterface
 {
     private string $ment = '';
+    private array $testShield = [];
+    private ?int $testPX = null;
+    private ?int $testPY = null;
 
     /**
      * 게임 화면에 표시될 플레이어 이름입니다.
@@ -36,7 +39,7 @@ class TerrorboyUser implements \App\UserInterface
     }
 
     /**
-     * ! 사용자 액션
+     * * 사용자 액션
      *
      * @param \App\PlayerInfo $player_info 플레이어 정보
      * @param \App\TileInfo[][] $tile_info_table [세로y][가로x] 2차원 배열에 담긴 타일 정보
@@ -44,6 +47,24 @@ class TerrorboyUser implements \App\UserInterface
      */
     public function action(\App\PlayerInfo $player_info, array $tile_info_table): ActionEnum
     {
+        /*
+            // ! 테스트를 위해 쉴드 더미 만듦
+            $this->testShield = array_fill(0, Game::mapRowNum(), array_fill(0, Game::mapColNum(), false));
+            // ! X 위치 쉴드 더미
+                $this->testShield[3][0] = true;
+                $this->testShield[3][3] = true;
+                $this->testShield[3][9] = true;
+            // ! Y 위치 쉴드 더미
+                $this->testShield[0][6] = true;
+                $this->testShield[1][6] = true;
+                $this->testShield[7][6] = true;
+
+            // !테스트를 위해 플레이어 위치 고정
+            $this->testPY = 3;
+            $this->testPX = 6;
+        */
+
+        // 멘트 처리
         if ($player_info->hp <= 1) {
             if (($player_info->shield??0) > 0) {
                 $this->ment = '아직 '.($player_info->shield??0).'발 남았다';
@@ -64,34 +85,13 @@ class TerrorboyUser implements \App\UserInterface
             shuffle($ment);
             $this->ment = $ment[0]??'';
         }
-        return ActionEnum::Hold;
+
+        // 이동 할 곳 결정
         $move = $this->movePoint($player_info, $tile_info_table);
-        $this->preview($player_info, $tile_info_table);
-        return $move;
+        //$this->preview($player_info, $tile_info_table);
 
-        //Game::BOOM_TURNS; // 해당 턴 수 마다 폭발이 발생 합니다.
-        //Game::mapColNum(); // 맵의 가로 개수
-        //Game::mapRowNum(); // 맵의 세로 개수
-
-        $player_info->x; // 플레이어 가로 위치
-        $player_info->y; // 플레이어 세로 위치
-        $player_info->hp; // 플레이어 HP
-        $player_info->shield; // 플레이어 보호막
-
-        // 2차원 배열 타일 정보 전체 확인
-        foreach ($tile_info_table as $y => $tile_info_rows) {
-            /** @var \App\TileInfo $tile_info */
-            foreach ($tile_info_rows as $x => $tile_info) {
-                $x; // 가로 위치
-                $y; // 세로 위치
-                $tile_info->exist_player; // 플레이어 존재 여부
-                $tile_info->exist_shield; // 방어막 존재 여부
-            }
-        }
-
-        $i = mt_rand(0, 4);
-
-        return match ($i) {
+        // 이동위치 반환
+        return match ($move) {
             0 => ActionEnum::Hold,
             1 => ActionEnum::Up,
             2 => ActionEnum::Down,
@@ -101,68 +101,100 @@ class TerrorboyUser implements \App\UserInterface
     }
 
     /**
-     * ! 이동위치 결정
-     *
-     * (현재는 쉴드가 터진 자리는 피해다닌다. - 테스트 해보니 쉴드 터진자리에 다시 터질 확률이 높다 위선 터진 자리로 이동하도록 한다.)
-     *
-     * @param \App\TileInfo[][] $tile_info_table [세로y][가로x] 2차원 배열에 담긴 타일 정보
-     * @return null|int
-     */
+      * * 이동 위치 결정
+      *
+      * @param \App\PlayerInfo $player_info
+      * @param array $tile_info_table
+      * @return int
+      */
     private function movePoint(\App\PlayerInfo $player_info, array $tile_info_table)
     {
-
         // 기본변수
-        $px = ($player_info->x??0); // 플레이어의 X 위치
-        $py = ($player_info->y??0); // 플레이어의 Y 위치
+        $px = ($this->testPX??$player_info->x??0); // 플레이어의 X 위치
+        $py = ($this->testPY??$player_info->y??0); // 플레이어의 Y 위치
         $mx = (Game::mapColNum()??10); // 맵의 최대 X
         $my = (Game::mapRowNum()??10); // 맵의 최대 Y
+        $point = ($py*$mx)+$px; // 플래이어의 현재 위치
         $around = []; // 내주변 이벤트 배열
 
-        dd($px, $py, $mx, $my);
-        // TODO: 가장 가까운 쉴드 찾기
+        // 내 위치 기준으로 십자 방향으로 쉴드 체크 배열 만듦
+        $cros = ['y'=>[], 'x'=>[]];
+        for ($x=0; $x<$mx; $x++) {
+            if ($px == $x) {
+                continue;
+            }
+            $checkShield = ($this->testShield[$py][$x]??$tile_info_table[$py][$x]->exist_shield??false);
+            if (!empty($checkShield)) {
+                $pointX = $x-$px;
+                $crosPoint = ($x-$px)*(($px <=> $x)*-1);
+                $cros['x'][$crosPoint][] = [
+                    'y'=>$py,
+                    'x'=>$x,
+                    'cros_point'=>$x-$px, // 십자열 기준 거리
+                    'cros_point2'=>$crosPoint, // 십자열 기준 거리 - 양수화
+                    'distance'=>$pointX, // 내위치로 부터의 거리
+                    'distance2'=>$pointX*(($px <=> $x)*-1), // 내위치로 부터의 거리 - 양수화
+                ];
+            }
+        }
+        for ($y=0; $y<$my; $y++) {
+            if ($py == $y) {
+                continue;
+            }
+            $checkShield = ($this->testShield[$y][$px]??$tile_info_table[$y][$px]->exist_shield??false);
+            if (!empty($checkShield)) {
+                $pointY = ($y*$mx)+$px;
+                $crosPoint = ($y-$py)*(($py <=> $y)*-1);
+                $cros['y'][$crosPoint][] = [
+                    'y'=>$y,
+                    'x'=>$px,
+                    'cros_point'=>$y-$py, // 십자열 기준 거리
+                    'cros_point2'=>$crosPoint, // 십자열 기준 거리 - 양수화
+                    'distance'=>($pointY-$point), // 내위치로 부터의 거리
+                    'distance2'=>($pointY-$point)*(($py <=> $y)*-1), // 내위치로 부터의 거리 - 양수화
+                ];
+            }
+        }
 
-        // 내주변 이벤트
-        $point = ($py*$mx)+$px; // 플래이어의 현재 위치
-        /*
-            // ! 추후 업데이트 되면 사용
-            $left = $point-1;
-            $right = $point+1;
-            $top = $point-$mx;
-            $bottom = $point+$mx;
-        */
-        if ($px > 0 ) {
-            $eventPoint = $titleInfoTable[$py][$px-1];
-            if (empty($eventPoint->exist_shield)) { // 추후 업데이트 되면 조건 추가 (붐 여부)
-                $around[] = 2;
+        // 정렬 변경 및 십자선 거리중 가장 가까운 값 구함
+        $crosX = $cros['x'];
+        $crosY = $cros['y'];
+        ksort($crosX);
+        $crosX = array_values($crosX);
+        ksort($crosY);
+        $crosY = array_values($crosY);
+        $crosXarray = $crosX[0]??null;
+        $crosYarray = $crosY[0]??null;
+
+        // 근거리 배열만듦
+        if (count($crosX??[]) > 0) { // X축
+            foreach (($crosXarray??[]) as $k=>$v) {
+                $direction = ($v['cros_point'] <=> 0);
+                if ($direction > 0) {
+                    $around[] = 2;
+                }
+                if ($direction < 0) {
+                    $around[] = 1;
+                }
             }
         }
-        if ($px < ($mx-1)) {
-            $eventPoint = $titleInfoTable[$py][$px+1];
-            if (!empty($eventPoint->exist_shield)) { // 추후 업데이트 되면 조건 추가 (붐 여부)
-                $around[] = 3;
-            }
-        }
-        if ($py > 0) {
-            $eventPoint = $titleInfoTable[$py-1][$px];
-            if (!empty($eventPoint->exist_shield)) { // 추후 업데이트 되면 조건 추가 (붐 여부)
-                $around[] = 0;
-            }
-        }
-        if ($py < ($my-1)) {
-            $eventPoint = $titleInfoTable[$py+1][$px];
-            if (!empty($eventPoint->exist_shield)) { // 추후 업데이트 되면 조건 추가 (붐 여부)
-                $around[] = 1;
+        if (count($crosY??[]) > 0) { // Y축
+            foreach (($crosYarray??[]) as $k=>$v) {
+                $direction = ($v['cros_point'] <=> 0);
+                if ($direction > 0) {
+                    $around[] = 4;
+                }
+                if ($direction < 0) {
+                    $around[] = 3;
+                }
             }
         }
 
-        // 플레이어 위치 미리보기
-        //$this->preview($mx, $my, $px, $py);
-
+        // 이동 방향 반환
         if (count($around) > 0) {
             return array_rand(array_flip($around));
         } else {
-            //return null; // null반환시 enum에서 지원하지 않기 때문에 오류로 내위치가 고정된다. - 쉴드 터진자리 피해 다닐때
-            return mt_rand(0, 3); // 쉴드 터진 자리를 찾을 때까지 랜덤 이동
+            return mt_rand(0, 3);
         }
     }
 
@@ -173,23 +205,19 @@ class TerrorboyUser implements \App\UserInterface
      */
     private function preview(\App\PlayerInfo $player_info, array $tile_info_table)
     {
-        // 테스트를 위해 쉴드 고정
-        $tile_info_table[0][6] = true;
-
         for ($y=0; $y<(Game::mapRowNum()??10); $y++) {
             if ($y > 0) {
                 echo '<br>';
             }
             for ($x=0; $x<(Game::mapColNum()??10); $x++) {
-                $shield = ($tile_info_table[$y][$x]??false);
+                $shield = ($this->testShield[$y][$x]??$tile_info_table[$y][$x]??false);
                 if ($shield === true) {
-                    if ($player_info->x == $x && $player_info->y == $y) {
+                    if (($this->testPX??$player_info->x) == $x && ($this->testPX??$player_info->y) == $y) {
                         echo '✣';
                     } else {
-                        echo '🛡️';
+                        echo '♦︎';
                     }
-                }
-                if ($player_info->x == $x && $player_info->y == $y) {
+                } else if (($this->testPX??$player_info->x) == $x && ($this->testPY??$player_info->y) == $y) {
                     echo '◼︎';
                 } else {
                     echo '﹒';
