@@ -47,22 +47,20 @@ class TerrorboyUser implements \App\UserInterface
      */
     public function action(\App\PlayerInfo $player_info, array $tile_info_table): ActionEnum
     {
-        /*
             // ! 테스트를 위해 쉴드 더미 만듦
             $this->testShield = array_fill(0, Game::mapRowNum(), array_fill(0, Game::mapColNum(), false));
             // ! X 위치 쉴드 더미
-                $this->testShield[3][0] = true;
-                $this->testShield[3][3] = true;
-                $this->testShield[3][9] = true;
+                //$this->testShield[3][0] = true;
+                //$this->testShield[3][3] = true;
+                //$this->testShield[3][9] = true;
             // ! Y 위치 쉴드 더미
-                $this->testShield[0][6] = true;
-                $this->testShield[1][6] = true;
-                $this->testShield[7][6] = true;
+                //$this->testShield[0][6] = true;
+                //$this->testShield[1][6] = true;
+                //$this->testShield[7][6] = true;
 
             // !테스트를 위해 플레이어 위치 고정
             $this->testPY = 3;
             $this->testPX = 6;
-        */
 
         // 멘트 처리
         if ($player_info->hp <= 1) {
@@ -88,7 +86,16 @@ class TerrorboyUser implements \App\UserInterface
 
         // 이동 할 곳 결정
         $move = $this->movePoint($player_info, $tile_info_table);
-        //$this->preview($player_info, $tile_info_table);
+        /*
+            d(match ($move) {
+                0 => 'ActionEnum::Hold',
+                1 => 'ActionEnum::Up',
+                2 => 'ActionEnum::Down',
+                3 => 'ActionEnum::Left',
+                4 => 'ActionEnum::Right',
+            });
+            $this->preview($player_info, $tile_info_table);
+        */
 
         // 이동위치 반환
         return match ($move) {
@@ -171,10 +178,10 @@ class TerrorboyUser implements \App\UserInterface
             foreach (($crosXarray??[]) as $k=>$v) {
                 $direction = ($v['cros_point'] <=> 0);
                 if ($direction > 0) {
-                    $around[] = 2;
+                    $around[] = 4;
                 }
                 if ($direction < 0) {
-                    $around[] = 1;
+                    $around[] = 3;
                 }
             }
         }
@@ -182,10 +189,10 @@ class TerrorboyUser implements \App\UserInterface
             foreach (($crosYarray??[]) as $k=>$v) {
                 $direction = ($v['cros_point'] <=> 0);
                 if ($direction > 0) {
-                    $around[] = 4;
+                    $around[] = 2;
                 }
                 if ($direction < 0) {
-                    $around[] = 3;
+                    $around[] = 1;
                 }
             }
         }
