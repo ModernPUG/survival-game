@@ -57,7 +57,7 @@ composer와 npm(또는 yarn), docker-compose가 필요합니다.
     docker-compose up -d
     ```
 
-4. 웹브라우저에서 https://localhost:8443 접속
+4. 웹브라우저에서 https://localhost:8443 접속합니다.
 이때 SSL 인증서 오류는 무시합니다.
 
 ## 클래스 코딩 안내
@@ -66,6 +66,8 @@ composer와 npm(또는 yarn), docker-compose가 필요합니다.
 
 - SampleUser 클래스 처럼 랜덤 이동으로 코딩해도 괜찮습니다.
 
+- 본인이 만든 클래스의 프로퍼티와 메소드는 자유롭게 구성해도 됩니다.
+
 - 플레이어가 이동하려는 타일에 다른 플레이어가 존재하면 이동이 불가능합니다.
 
     ```php
@@ -73,7 +75,7 @@ composer와 npm(또는 yarn), docker-compose가 필요합니다.
      * 특정 x,y 위치에 다른 플레이어가 있는지 확인하는 코드
      */
 
-    $tile_info = $tile_info_table[$y][$x];
+    $tile_info = $tile_info_table[$player_info->y][$player_info->x];
 
     if ($tile_info->exist_player) {
         echo '있다';
@@ -82,14 +84,14 @@ composer와 npm(또는 yarn), docker-compose가 필요합니다.
     }
     ```
 
-- 방어막이 있는 타일에 플레이어가 있으면 폭발 공격을 받지 않습니다.
+- 방어막이 있는 타일에 플레이어가 있으면 방어막을 획득합니다.
 
     ```php
     /*
      * 특정 x,y 위치에 방어막이 있는지 확인하는 코드
      */
 
-    $tile_info = $tile_info_table[$y][$x];
+    $tile_info = $tile_info_table[$player_info->y][$player_info->x];
 
     if ($tile_info->exist_shield) {
         echo '있다';
@@ -100,4 +102,20 @@ composer와 npm(또는 yarn), docker-compose가 필요합니다.
 
 - Exception이 발생하면 플레이어는 이동하지 않습니다.
 
-- 게임에 영향을 주거나 시스템에 위험한 행위를 시도하는 코드는 허가되지 않습니다.
+- 게임에 영향을 주거나 이벤트의 목적을 벗어나는 코드는 허가되지 않습니다.
+
+## 게임 동작 방식
+
+실제 게임은 PHP로 실행되어 최종 결과까지의 플레이 로그가 생성됩니다.
+그리고 생성된 플레이 로그를 JS를 사용하여 재생하는 방식입니다.
+
+## 사용된 기술
+
+- [FrankenPHP](https://frankenphp.dev/)
+- [PixiJS](https://pixijs.com/)
+- [Web Components](https://developer.mozilla.org/ko/docs/Web/Web_Components)
+
+## 알려진 오류
+
+- 갑자기 JS 파일이 로드가 안되는 등 웹서버 동작에 이상이 생기면 도커 컨테이너의 문제일 가능성이 높습니다.
+도커 컨테이너를 지우고 새롭게 다시 실행합니다.
