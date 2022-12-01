@@ -126,9 +126,11 @@ class JHansol implements UserInterface {
     public function getMessage(): string {
         $msg_list = [
             '내가 승자다.',
-            '방어막!!?? 방어막 어딨어?',
-            '방어막으로 고고씽~~',
-            '마지막까지 살아 남을꺼야 난~~~'
+            '보호막!!?? 방어막 어딨어?',
+            '보호막으로 고고씽~~',
+            '마지막까지 살아 남을꺼야 난~~~',
+            '나는 보호막 기습부대',
+            '난! 폭탄 실어!!!'
         ];
         shuffle($msg_list);
         return $msg_list[0];
