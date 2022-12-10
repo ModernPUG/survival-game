@@ -21,7 +21,7 @@ class HappyRunner implements \App\UserInterface
      */
     public function getName(): string
     {
-        return 'HappyRunner';
+        return '해피러너';
     }
 
     /**
@@ -34,8 +34,11 @@ class HappyRunner implements \App\UserInterface
         $msg_list = [
             '달립니다',
             '아파도 달립니다',
+            '너무 많이 아프면 안 달립니다',
             '최선을 다해 달립니다',
             '달리기 위해 달립니다',
+            '휴식도 훈련입니다',
+            '러너스 하이'
         ];
         shuffle($msg_list);
         return $msg_list[0];
@@ -70,7 +73,7 @@ class HappyRunner implements \App\UserInterface
             }
         }
 
-        $i = mt_rand(0, 4);
+        $i = mt_rand(1, 4);
 
         return match ($i) {
             0 => ActionEnum::Hold,
