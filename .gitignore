@@ -3,6 +3,6 @@ composer.lock
 yarn.lock
 yarn-error.log
 package-lock.json
+node_modules
 /vendor
-/node_modules
-/.*
+.*
