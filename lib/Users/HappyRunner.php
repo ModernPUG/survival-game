@@ -33,12 +33,12 @@ class HappyRunner implements \App\UserInterface
     {
         $msg_list = [
             '달립니다',
-            '아파도 달립니다',
-            '너무 많이 아프면 안 달립니다',
+            '비가 와도 눈이 와도 달립니다',
+            '너무 아프면 안 달립니다',
             '최선을 다해 달립니다',
             '달리기 위해 달립니다',
             '휴식도 훈련입니다',
-            '러너스 하이'
+            '러너스 하이 상태 돌입!'
         ];
         shuffle($msg_list);
         return $msg_list[0];
@@ -61,6 +61,7 @@ class HappyRunner implements \App\UserInterface
         $player_info->y; // 플레이어 세로 위치
         $player_info->hp; // 플레이어 HP
         $player_info->shield; // 플레이어 보호막
+        $shield_tile_list = array();
 
         // 2차원 배열 타일 정보 전체 확인
         foreach ($tile_info_table as $y => $tile_info_rows) {
@@ -70,17 +71,124 @@ class HappyRunner implements \App\UserInterface
                 $y; // 세로 위치
                 $tile_info->exist_player; // 플레이어 존재 여부
                 $tile_info->exist_shield; // 방어막 존재 여부
+
+                // 실드 있고 플레이어 없는 타일 리스트 수집
+                if ($tile_info->exist_shield && !$tile_info->exist_player) {
+                    $distance_to_this_shield = $this->calculateDistanceFromMe($player_info->x, $player_info->y, $x, $y);
+                    $shield_tile_list[] = [
+                        'distance' => $distance_to_this_shield,
+                        'tile' => [
+                            'x' => $x,
+                            'y' => $y
+                        ],
+                    ];
+                }
             }
         }
 
-        $i = mt_rand(1, 4);
+        return $this->moveToShield($shield_tile_list, $player_info, $tile_info_table);
+    }
 
-        return match ($i) {
-            0 => ActionEnum::Hold,
-            1 => ActionEnum::Up,
-            2 => ActionEnum::Down,
-            3 => ActionEnum::Left,
-            4 => ActionEnum::Right,
-        };
+    /**
+     * @param int $player_x
+     * @param int $player_y
+     * @param int $tile_x
+     * @param int $tile_y
+     * @return int
+     */
+    private function calculateDistanceFromMe(int $player_x, int $player_y, int $tile_x, int $tile_y): int
+    {
+        $distance_x = abs($player_x - $tile_x);
+        $distance_y = abs($player_y - $tile_y);
+        return $distance_x + $distance_y;
+    }
+
+    /**
+     * @param array $shield_tile_list
+     * @param \App\PlayerInfo $player_info
+     * @param array $tile_info_table
+     * @return ActionEnum
+     */
+    private function moveToShield(array $shield_tile_list, \App\PlayerInfo $player_info, array $tile_info_table): ActionEnum
+    {
+        // 실드가 있는 타일 정보를 거리가 짧은 순으로 정렬
+        $distances = array();
+        foreach ($shield_tile_list as $key => $row) {
+            $distances[$key] = $row['distance'];
+        }
+        array_multisort($distances, SORT_ASC, $shield_tile_list);
+
+        if (empty($shield_tile_list) || $shield_tile_list[0]['distance'] > 8){
+            $direction_x = $player_info->x - (int)(Game::mapRowNum() / 2);
+            $direction_y = $player_info->y - (int)(Game::mapColNum() / 2);
+        } else {
+            $direction_x = $player_info->x - $shield_tile_list[0]['tile']['x'];
+            $direction_y = $player_info->y - $shield_tile_list[0]['tile']['y'];
+        }
+
+        if ($direction_x == 0 && $direction_y == 0) {
+            return ActionEnum::Hold;
+        }
+        if ($direction_x < 0 && $direction_y == 0) {
+            return ActionEnum::Right;
+        }
+        if ($direction_x > 0 && $direction_y == 0) {
+            return ActionEnum::Left;
+        }
+        if ($direction_x == 0 && $direction_y < 0) {
+            return ActionEnum::Down;
+        }
+        if ($direction_x == 0 && $direction_y > 0) {
+            return ActionEnum::Up;
+        }
+        $i = mt_rand(0, 1);
+        if ($direction_x < 0 && $direction_y < 0) {
+            if ($i == 0 && $tile_info_table[$player_info->y + 1][$player_info->x]->exist_player){
+                $i = 1;
+            }
+            if ($i == 1 && $tile_info_table[$player_info->y][$player_info->x + 1]->exist_player){
+                $i = 0;
+            }
+            return match ($i) {
+                0 => ActionEnum::Down,
+                1 => ActionEnum::Right,
+            };
+        }
+        if ($direction_x > 0 && $direction_y < 0) {
+            if ($i == 0 && $tile_info_table[$player_info->y + 1][$player_info->x]->exist_player){
+                $i = 1;
+            }
+            if ($i == 1 && $tile_info_table[$player_info->y][$player_info->x - 1]->exist_player){
+                $i = 0;
+            }
+            return match ($i) {
+                0 => ActionEnum::Down,
+                1 => ActionEnum::Left,
+            };
+        }
+        if ($direction_x < 0 && $direction_y > 0) {
+            if ($i == 0 && $tile_info_table[$player_info->y - 1][$player_info->x]->exist_player){
+                $i = 1;
+            }
+            if ($i == 1 && $tile_info_table[$player_info->y][$player_info->x + 1]->exist_player){
+                $i = 0;
+            }
+            return match ($i) {
+                0 => ActionEnum::Up,
+                1 => ActionEnum::Right,
+            };
+        }
+        if ($direction_x > 0 && $direction_y > 0) {
+            if ($i == 0 && $tile_info_table[$player_info->y - 1][$player_info->x]->exist_player){
+                $i = 1;
+            }
+            if ($i == 1 && $tile_info_table[$player_info->y][$player_info->x - 1]->exist_player){
+                $i = 0;
+            }
+            return match ($i) {
+                0 => ActionEnum::Up,
+                1 => ActionEnum::Left,
+            };
+        }
     }
 }
