@@ -139,6 +139,8 @@ class HappyRunner implements \App\UserInterface
         if ($direction_x == 0 && $direction_y > 0) {
             return ActionEnum::Up;
         }
+        
+        // x축, y축 모두 이동해야할 경우 랜덤으로 어느 한쪽부터 이동하고 랜덤이동하려는 타일에 플레이어가 있을 경우 반대쪽축부터 이동
         $i = mt_rand(0, 1);
         if ($direction_x < 0 && $direction_y < 0) {
             if ($i == 0 && $tile_info_table[$player_info->y + 1][$player_info->x]->exist_player){
