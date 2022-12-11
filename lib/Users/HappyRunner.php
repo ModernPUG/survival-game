@@ -111,19 +111,17 @@ class HappyRunner implements \App\UserInterface
      */
     private function moveToShield(array $shield_tile_list, \App\PlayerInfo $player_info, array $tile_info_table): ActionEnum
     {
-        // 실드가 있는 타일 정보를 거리가 짧은 순으로 정렬
-        $distances = array();
-        foreach ($shield_tile_list as $key => $row) {
-            $distances[$key] = $row['distance'];
+        if (!empty($shield_tile_list)){
+            $destination = $this->getNearestShieldTile($shield_tile_list);
         }
-        array_multisort($distances, SORT_ASC, $shield_tile_list);
 
-        if (empty($shield_tile_list) || $shield_tile_list[0]['distance'] > 8){
+        // 실드타일이 없거나 너무 멀 경우 맵 중앙을 향해 이동
+        if (empty($shield_tile_list) || $destination['distance'] > 8){
             $direction_x = $player_info->x - (int)(Game::mapRowNum() / 2);
             $direction_y = $player_info->y - (int)(Game::mapColNum() / 2);
         } else {
-            $direction_x = $player_info->x - $shield_tile_list[0]['tile']['x'];
-            $direction_y = $player_info->y - $shield_tile_list[0]['tile']['y'];
+            $direction_x = $player_info->x - $destination['tile']['x'];
+            $direction_y = $player_info->y - $destination['tile']['y'];
         }
 
         if ($direction_x == 0 && $direction_y == 0) {
@@ -190,5 +188,20 @@ class HappyRunner implements \App\UserInterface
                 1 => ActionEnum::Left,
             };
         }
+    }
+
+    /**
+     * 실드가 있는 타일들을 나와의 거리가 짧은 순으로 나열하여 가장 짧은 타일 리턴
+     * @param array $shield_tile_list
+     * @return array
+     */
+    private function getNearestShieldTile(array $shield_tile_list): array
+    {
+        $distances = array();
+        foreach ($shield_tile_list as $key => $row) {
+            $distances[$key] = $row['distance'];
+        }
+        array_multisort($distances, SORT_ASC, $shield_tile_list);
+        return $shield_tile_list[0];
     }
 }
