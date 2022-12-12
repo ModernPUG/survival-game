@@ -8,8 +8,8 @@ use App\ActionEnum;
 use App\Game;
 
 /**
- * 본인이 개발한 클래스에 대한 소개를 주석에 자유롭게 작성해주세요.
- * 이 예제 코드를 참고하여 본인만의 클래스를 만들어주세요.
+ * 로빈후드가 되어, 살아남을 클래스를 만들어 봐요
+ * 참여기 : https://root-garage-60a.notion.site/4653de392ee5493d8787414257e3dded
  */
 class Robin implements \App\UserInterface
 {
@@ -41,7 +41,7 @@ class Robin implements \App\UserInterface
     }
 
     /**
-     * 사용자 액션
+     * 실드를 먼저 확보하고, 없으면 랜ㄴ덤하게
      *
      * @param \App\PlayerInfo $player_info 플레이어 정보
      * @param \App\TileInfo[][] $tile_info_table [세로y][가로x] 2차원 배열에 담긴 타일 정보
@@ -65,7 +65,7 @@ class Robin implements \App\UserInterface
         $player_info->y; // 플레이어 세로 위치
         $player_info->hp; // 플레이어 HP
         $player_info->shield; // 플레이어 보호막
-
+        
         // 2차원 배열 타일 정보 전체 확인
         $shields = []; // x*y의 배열
         foreach ($tile_info_table as $y => $tile_info_rows) {
