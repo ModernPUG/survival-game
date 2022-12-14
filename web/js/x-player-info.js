@@ -76,13 +76,26 @@ const html = /*html*/`
 
     .player__shield {
     }
+
+    .player__exp {
+        font-size: 2.8em;
+        flex: 0 0 2.2em;
+        color: #fcc475;
+        align-self: center;
+        text-align: center;
+    }
+
+    .l-middle {
+        flex: 1 1 auto;
+        overflow: hidden;
+    }
     </style>
 
     <div class="overlay overlay--red js-overlay-red"></div>
     <div class="overlay overlay--blue js-overlay-blue"></div>
     <div class="player">
         <img class="player__img js-img" src="" />
-        <div>
+        <div class="l-middle">
             <div class="player__name js-name"></div>
             <div class="player__message js-message"></div>
             <div class="player__stats">
@@ -91,12 +104,13 @@ const html = /*html*/`
                 &nbsp;
             </div>
         </div>
+        <div class="player__exp js-exp"></div>
     </div>
 `;
 
 class PlayerInfo extends HTMLElement {
     static get observedAttributes() {
-        return ['name', 'img', 'hp', 'shield', 'message'];
+        return ['name', 'img', 'hp', 'exp', 'shield', 'message'];
     }
 
     #shadow;
@@ -134,6 +148,10 @@ class PlayerInfo extends HTMLElement {
                         }
                     }, 1);
                 }
+                break;
+
+            case 'exp':
+                shadow.querySelector('.js-exp').textContent = newValue;
                 break;
 
             case 'shield':

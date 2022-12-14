@@ -9,6 +9,7 @@ export class Player {
     #id;
     #name;
     #hp;
+    #exp;
     #shield;
     #message;
     #x;
@@ -25,6 +26,7 @@ export class Player {
         this.#id = objectData.id;
         this.#name = objectData.name;
         this.#hp = objectData.hp;
+        this.#exp = objectData.exp;
         this.#shield = objectData.shield;
         this.#message = objectData.message;
         this.#x = objectData.x;
@@ -52,6 +54,7 @@ export class Player {
         elPlayerInfo.setAttribute('name', this.#name);
         elPlayerInfo.setAttribute('img', imgSrc);
         elPlayerInfo.setAttribute('hp', this.#hp);
+        elPlayerInfo.setAttribute('exp', this.#exp);
         elPlayerInfo.setAttribute('shield', this.#shield);
         this.#elPlayerInfo = elPlayerInfo;
     }
@@ -66,6 +69,10 @@ export class Player {
 
     get hp() {
         return this.#hp;
+    }
+
+    get exp() {
+        return this.#exp;
     }
 
     get shield() {
@@ -102,6 +109,7 @@ export class Player {
         }
 
         this.#hp = objectData.hp;
+        this.#exp = objectData.exp;
         this.#shield = objectData.shield;
         this.#message = objectData.message;
         this.#x = objectData.x;
@@ -109,6 +117,7 @@ export class Player {
         this.#isPlaying = true;
 
         this.#elPlayerInfo.setAttribute('hp', this.#hp);
+        this.#elPlayerInfo.setAttribute('exp', this.#exp);
         this.#elPlayerInfo.setAttribute('shield', this.#shield);
         this.#elPlayerInfo.setAttribute('message', this.#message);
 
