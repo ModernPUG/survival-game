@@ -9,3 +9,4 @@ services:
     volumes:
       - .:/app
       - ./web:/app/public
+      - ./node_modules:/app/public/node_modules

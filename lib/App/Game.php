@@ -222,12 +222,15 @@ class Game
                 $this->logPlayDataList($shield_data_list);
             }
 
-            $this->logPlayDataList($this->getPlayerDataList());
-
             $survivor_count = 0;
             foreach ($this->player_list as $player) {
-                $survivor_count += $player->getHp() > 0 ? 1 : 0;
+                if ($player->alive()) {
+                    ++$survivor_count;
+                    $player->increaseExp();
+                }
             }
+
+            $this->logPlayDataList($this->getPlayerDataList());
 
             if ($survivor_count < 2) {
                 break;

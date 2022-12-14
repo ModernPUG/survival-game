@@ -14,6 +14,8 @@ class Player
 
     private int $hp = 5;
 
+    private int $exp = 0;
+
     private int $shield = 0;
 
     public function __construct(
@@ -37,8 +39,22 @@ class Player
         return $this->hp;
     }
 
+    public function alive(): bool
+    {
+        return $this->hp > 0;
+    }
+
+    public function dead(): bool
+    {
+        return $this->hp < 1;
+    }
+
     public function addShield(): void
     {
+        if ($this->dead()) {
+            return;
+        }
+
         if ($this->shield < self::MAX_SHIELD) {
             ++$this->shield;
         }
@@ -55,14 +71,23 @@ class Player
             --$this->hp;
         }
 
-        if ($this->hp < 1) {
+        if ($this->dead()) {
             $this->map->removePlayer($this);
         }
     }
 
+    public function increaseExp(): void
+    {
+        if ($this->dead()) {
+            return;
+        }
+
+        ++$this->exp;
+    }
+
     public function action(): void
     {
-        if ($this->hp < 1) {
+        if ($this->dead()) {
             return;
         }
 
@@ -94,6 +119,7 @@ class Player
             'id' => $this->id,
             'name' => $this->name,
             'hp' => $this->hp,
+            'exp' => $this->exp,
             'shield' => $this->shield,
             'message' => $this->user->getMessage(),
             'x' => $x,
