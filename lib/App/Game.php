@@ -8,12 +8,18 @@ class Game
 {
     private static ?self $instance = null;
 
+    private static int $col_number = 0;
+
+    private static int $row_number = 0;
+
     public static function createOnce(int $col_num, int $row_num): ?self
     {
         if (self::$instance) {
             return null;
         }
 
+        self::$col_number = $col_num;
+        self::$row_number = $row_num;
         self::$instance = new self($col_num, $row_num);
         return self::$instance;
     }
@@ -25,7 +31,7 @@ class Game
      */
     public static function mapColNum(): int
     {
-        return self::$instance->col_num;
+        return self::$col_number;
     }
 
     /**
@@ -35,7 +41,7 @@ class Game
      */
     public static function mapRowNum(): int
     {
-        return self::$instance->row_num;
+        return self::$row_number;
     }
 
     /** 폭발 발생 턴 수 */
