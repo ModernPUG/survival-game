@@ -112,7 +112,8 @@ class Game
 
     private function makeShieldDataList(): array
     {
-        $need_shield_count = (int)ceil($this->map->getPlayerCount() * 1.5);
+        $player_count = $this->map->getPlayerCount();
+        $need_shield_count = (int)ceil($player_count * 1.5);
         $shield_count = $this->map->getShieldCount();
 
         if ($shield_count >= $need_shield_count) {
@@ -124,7 +125,12 @@ class Game
 
         $diff_pos_list = array_diff($noplayer_pos_list, $shield_pos_list);
         shuffle($diff_pos_list);
-        $picked_pos_list = array_splice($diff_pos_list, 0, 1);
+
+        $min_shield_count = (int)ceil($player_count / 3);
+        $make_count = ($shield_count < $min_shield_count)
+            ? $min_shield_count - $shield_count : 1;
+
+        $picked_pos_list = array_splice($diff_pos_list, 0, $make_count);
 
         $shield_data_list = array_map(
             function (Pos $pos) {
