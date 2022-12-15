@@ -138,43 +138,24 @@ class locate implements \App\UserInterface
         $shieldDistansX = $shieldX - $player_info->x;
         $shieldDistansY = $shieldY - $player_info->y;
 
-        /* 플레이어와의 거리가 2차이가 나는지 확인
-         * 차이가 나지 않으면 그대로 진행
-         * 차이가 나면 X, Y 비교
-         * */
-        if ($playerDistance < 2) {
-            // X축이 같을 때
-            if (0 == $playerDistansX) {
-                if ($shieldDistansX < 0) {
-                    $i = 3;
-                } else {
-                    $i = 4;
-                }
-            // Y축이 같을 때
-            } elseif (0 == $playerDistansY) {
-                if ($shieldDistansY > 0) {
-                    $i = 2;
-                } else {
-                    $i = 1;
-                }
-            }
-        } else {
-            // X축 이동
-            if (0 == $shieldDistansX) {
-                // Y축 이동
-                if ($shieldDistansY > 0) {
-                    $i = 2;
-                } else {
-                    $i = 1;
-                }
-            } elseif ($shieldDistansX < 0) {
-                $i = 3;
-            } elseif ($shieldDistansX > 0) {
-                $i = 4;
+        // 단순이동 
+        //
+        // X축 이동
+        if (0 == $shieldDistansX) {
+            // Y축 이동
+            if ($shieldDistansY > 0) {
+                $i = 2;
             } else {
-                $i = rand(0, 4);
+                $i = 1;
             }
+        } elseif ($shieldDistansX < 0) {
+            $i = 3;
+        } elseif ($shieldDistansX > 0) {
+            $i = 4;
+        } else {
+            $i = rand(0, 4);
         }
+
         return match ($i) {
             0 => ActionEnum::Hold,
             1 => ActionEnum::Up,
