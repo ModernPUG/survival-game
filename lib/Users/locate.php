@@ -8,29 +8,26 @@ use App\ActionEnum;
 use App\Game;
 
 /**
- * 본인이 개발한 클래스에 대한 소개를 주석에 자유롭게 작성해주세요.
- * 이 예제 코드를 참고하여 본인만의 클래스를 만들어주세요.
+ * 참가자 17
+ * 특출난건 없습니다. 그냥 참가자 입니다.
  */
 class locate implements \App\UserInterface
 {
-    /** 게임 화면에 표시될 플레이어 이름입니다.
-     *
+    /** 캐릭터 이름
      */
     public function getName(): string
     {
-        return '땅바닥';
+        return '참가자17';
     }
 
-    /** 캐릭터 이름.
-     */
+    // 멘트
     public function getMessage(): string
     {
-        // 멘트
-        $m = rand(0, 3);
         $message = [
-            '땅바닥이 움직이네',
-            '지진인가?',
-            '내가 보이긴 할까?',
+            '지더라도 열심히!',
+            '시간은 많이썼는데',
+            '기발하지도 않고',
+            '평범 그자체!',
         ];
         shuffle($message);
 
@@ -145,7 +142,7 @@ class locate implements \App\UserInterface
          * 차이가 나지 않으면 그대로 진행
          * 차이가 나면 X, Y 비교
          * */
-        /*if ($playerDistance < 2) {
+        if ($playerDistance < 2) {
             // X축이 같을 때
             if (0 == $playerDistansX) {
                 if ($shieldDistansX < 0) {
@@ -177,23 +174,6 @@ class locate implements \App\UserInterface
             } else {
                 $i = rand(0, 4);
             }
-        }*/
-        // 단순이동 
-        //
-        // X축 이동
-        if (0 == $shieldDistansX) {
-            // Y축 이동
-            if ($shieldDistansY > 0) {
-                $i = 2;
-            } else {
-                $i = 1;
-            }
-        } elseif ($shieldDistansX < 0) {
-            $i = 3;
-        } elseif ($shieldDistansX > 0) {
-            $i = 4;
-        } else {
-            $i = rand(0, 4);
         }
         return match ($i) {
             0 => ActionEnum::Hold,
