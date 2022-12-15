@@ -191,9 +191,11 @@ export class Game
 
     downloadCsv() {
         const rowList = [];
+        rowList.push(`name,exp,hp,shield`);
+
         for (const id in this.#playerList) {
             const player = this.#playerList[id];
-            rowList.push(`"${player.name}",${player.exp}`);
+            rowList.push(`"${player.name}",${player.exp},${player.hp},${player.shield}`);
         }
 
         const csv = rowList.join('\n');
