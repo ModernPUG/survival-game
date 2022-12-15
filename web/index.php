@@ -32,7 +32,7 @@ $game->play();
         padding: 2em;
     }
 
-    .c-play {
+    .o-btn {
         font-family: 'CookieRunBold';
         font-size: 1rem;
         color: #fff;
@@ -47,8 +47,9 @@ $game->play();
     }
 
     .l-outline {
-        margin-top: 1em;
         display: flex;
+        align-items: flex-start;
+        margin-top: 1em;
     }
 
     .l-screen {
@@ -59,14 +60,17 @@ $game->play();
     }
 
     .l-dashboard {
-        width: 400px;
+        display: grid;
+        grid-template-columns: repeat(3, 400px);
     }
     </style>
 </head>
 <body>
 
 <div class="l-container">
-    <button class="c-play js-play">Play</button>
+    <button class="o-btn js-play">Play</button>
+
+    <button class="o-btn js-csv">CSV</button>
 
     <div class="l-outline">
         <div class="l-screen js-screen"></div>
@@ -91,6 +95,10 @@ const game = new Game(
 
 document.querySelector('.js-play').addEventListener('click', () => {
     game.play();
+});
+
+document.querySelector('.js-csv').addEventListener('click', () => {
+    game.downloadCsv();
 });
 </script>
 

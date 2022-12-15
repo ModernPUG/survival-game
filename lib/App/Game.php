@@ -8,12 +8,18 @@ class Game
 {
     private static ?self $instance = null;
 
+    private static int $col_number = 0;
+
+    private static int $row_number = 0;
+
     public static function createOnce(int $col_num, int $row_num): ?self
     {
         if (self::$instance) {
             return null;
         }
 
+        self::$col_number = $col_num;
+        self::$row_number = $row_num;
         self::$instance = new self($col_num, $row_num);
         return self::$instance;
     }
@@ -25,7 +31,7 @@ class Game
      */
     public static function mapColNum(): int
     {
-        return self::$instance->col_num;
+        return self::$col_number;
     }
 
     /**
@@ -35,7 +41,7 @@ class Game
      */
     public static function mapRowNum(): int
     {
-        return self::$instance->row_num;
+        return self::$row_number;
     }
 
     /** 폭발 발생 턴 수 */
@@ -106,16 +112,19 @@ class Game
 
     private function makeShieldDataList(): array
     {
-        $need_shield_count = $this->map->getPlayerCount() * 2;
+        $need_shield_count = (int)ceil($this->map->getPlayerCount() * 1.5);
         $shield_count = $this->map->getShieldCount();
 
         if ($shield_count >= $need_shield_count) {
             return [];
         }
 
+        $shield_pos_list = $this->map->shieldPosList();
         $noplayer_pos_list = $this->map->noplayerPosList();
-        shuffle($noplayer_pos_list);
-        $shield_pos_list = array_splice($noplayer_pos_list, 0, 1);
+
+        $diff_pos_list = array_diff($noplayer_pos_list, $shield_pos_list);
+        shuffle($diff_pos_list);
+        $picked_pos_list = array_splice($diff_pos_list, 0, 1);
 
         $shield_data_list = array_map(
             function (Pos $pos) {
@@ -126,7 +135,7 @@ class Game
                     'y' => $pos->y,
                 ];
             },
-            $shield_pos_list
+            $picked_pos_list
         );
 
         return $shield_data_list;
@@ -134,11 +143,15 @@ class Game
 
     private function makeBoomDataList(): array
     {
-        $count = (int)ceil(($this->col_num * $this->row_num) / 2);
+        $player_count = $this->map->getPlayerCount();
+        $count = ($this->col_num * $this->row_num) - ($player_count * 3);
 
         $noshield_pos_list = $this->map->noshieldPosList();
-        // 마지막으로 폭탄 터진 곳들 제외
-        $diff_pos_list = array_diff($noshield_pos_list, $this->last_boom_pos_list);
+        // 마지막으로 폭탄 터진 곳 중 플레이어 수에 비례하여 제외
+        $last_boom_pos_list = $this->last_boom_pos_list;
+        shuffle($last_boom_pos_list);
+        array_splice($last_boom_pos_list, $player_count * 3);
+        $diff_pos_list = array_diff($noshield_pos_list, $last_boom_pos_list);
 
         shuffle($diff_pos_list);
         $boom_pos_list = array_splice($diff_pos_list, 0, $count);

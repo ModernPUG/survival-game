@@ -188,4 +188,23 @@ export class Game
 
         stage.addChild(text);
     }
+
+    downloadCsv() {
+        const rowList = [];
+        rowList.push(`name,exp,hp,shield`);
+
+        for (const id in this.#playerList) {
+            const player = this.#playerList[id];
+            rowList.push(`"${player.name}",${player.exp},${player.hp},${player.shield}`);
+        }
+
+        const csv = rowList.join('\n');
+        const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+        const link = document.createElement('a');
+        link.setAttribute('href', window.URL.createObjectURL(blob));
+        link.setAttribute('download', 'survival-players.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
 }
