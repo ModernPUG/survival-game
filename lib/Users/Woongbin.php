@@ -26,12 +26,6 @@ class Woongbin implements \App\UserInterface
     protected $maxX;
     protected $maxY;
 
-    public function __construct()
-    {
-        $this->maxX = Game::mapColNum();
-        $this->maxY = Game::mapRowNum();
-    }
-
     public function getName(): string
     {
         return 'Woongbin';
@@ -62,12 +56,15 @@ class Woongbin implements \App\UserInterface
      */
     public function action(\App\PlayerInfo $player_info, array $tile_info_table): ActionEnum
     {
-        $crossPoints[self::LEFT] = $this->getLeftTilePoint($player_info);
-        $crossPoints[self::RIGHT] = $this->getRightTilePoint($player_info);
-        $crossPoints[self::UP] = $this->getUpTilePoint($player_info);
-        $crossPoints[self::DOWN] = $this->getDownTilePoint($player_info);
-
         try {
+            $this->maxX = Game::mapColNum();
+            $this->maxY = Game::mapRowNum();
+
+            $crossPoints[self::LEFT] = $this->getLeftTilePoint($player_info);
+            $crossPoints[self::RIGHT] = $this->getRightTilePoint($player_info);
+            $crossPoints[self::UP] = $this->getUpTilePoint($player_info);
+            $crossPoints[self::DOWN] = $this->getDownTilePoint($player_info);
+
             foreach ($crossPoints as $type => $point) {
                 if ($point === null) {
                     continue;
