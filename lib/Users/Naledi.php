@@ -31,9 +31,9 @@ class Naledi implements \App\UserInterface
     public function getMessage(): string
     {
         $msg_list = [
-            '끝까지 살아남자!',
-            '아이쿠! 아파요~',
-            '최선을 다해 피하는 중...',
+            '새해 복 많이 받으세요 🙇‍♀️',
+            '해피 뉴 이어 🎉',
+            '해피 홀리데이 🎅',
         ];
         shuffle($msg_list);
         return $msg_list[0];
@@ -48,14 +48,8 @@ class Naledi implements \App\UserInterface
      */
     public function action(\App\PlayerInfo $player_info, array $tile_info_table): ActionEnum
     {
-        Game::BOOM_TURNS; // 해당 턴 수 마다 폭발이 발생 합니다.
-        Game::mapColNum(); // 맵의 가로 개수
-        Game::mapRowNum(); // 맵의 세로 개수
-
-        $player_info->x; // 플레이어 가로 위치
-        $player_info->y; // 플레이어 세로 위치
-        $player_info->hp; // 플레이어 HP
-        $player_info->shield; // 플레이어 보호막
+        $target_point = 0;
+        $target_pos = [];
 
         // 2차원 배열 타일 정보 전체 확인
         foreach ($tile_info_table as $y => $tile_info_rows) {
@@ -65,17 +59,91 @@ class Naledi implements \App\UserInterface
                 $y; // 세로 위치
                 $tile_info->exist_player; // 플레이어 존재 여부
                 $tile_info->exist_shield; // 방어막 존재 여부
+
+                if (!$tile_info->exist_shield) {
+                    continue;
+                }
+
+                $point = Game::mapColNum() * Game::mapRowNum();
+
+                $abs_x = abs($player_info->x - $x);
+                $abs_y = abs($player_info->y - $y);
+                $distance_penalty = $abs_x + $abs_y;
+
+                $point -= $distance_penalty;
+
+                $player_penalty = (function () use (
+                    $player_info,
+                    $tile_info_table,
+                    $x,
+                    $y
+                ) {
+                    $penalty_high = 3;
+                    $penalty_middle = 1;
+
+                    $outline_data_list = [
+                        [$penalty_high, $y, $x - 1],
+                        [$penalty_high, $y, $x + 1],
+                        [$penalty_high, $y - 1, $x],
+                        [$penalty_high, $y + 1, $x],
+                        [$penalty_middle, $y - 1, $x - 1],
+                        [$penalty_middle, $y - 1, $x + 1],
+                        [$penalty_middle, $y + 1, $x - 1],
+                        [$penalty_middle, $y + 1, $x + 1],
+                    ];
+
+                    $penalty_sum = 0;
+                    foreach ($outline_data_list as $outline_data) {
+                        [$penalty, $out_y, $out_x] = $outline_data;
+
+                        if (
+                            $player_info->x == $out_x
+                            && $player_info->y == $out_y
+                        ) {
+                            continue;
+                        }
+
+                        $tile_info = $tile_info_table[$out_y][$out_x] ?? null;
+                        if (!$tile_info) {
+                            continue;
+                        }
+
+                        if ($tile_info->exist_player) {
+                            $penalty_sum += $penalty;
+                        }
+                    }
+
+                    return $penalty_sum;
+                })();
+
+                $point -= $player_penalty;
+
+                if ($point > $target_point) {
+                    $target_point = $point;
+                    $target_pos = [
+                        'x' => $x,
+                        'y' => $y,
+                    ];
+                }
             }
         }
 
-        $i = mt_rand(0, 4);
+        if (empty($target_pos)) {
+            return ActionEnum::Hold;
+        }
 
-        return match ($i) {
-            0 => ActionEnum::Hold,
-            1 => ActionEnum::Up,
-            2 => ActionEnum::Down,
-            3 => ActionEnum::Left,
-            4 => ActionEnum::Right,
-        };
+        if ($player_info->x < $target_pos['x']) {
+            $action = ActionEnum::Right;
+        } elseif ($player_info->x > $target_pos['x']) {
+            $action = ActionEnum::Left;
+        } elseif ($player_info->y < $target_pos['y']) {
+            $action = ActionEnum::Down;
+        } elseif ($player_info->y > $target_pos['y']) {
+            $action = ActionEnum::Up;
+        } else {
+            $action = ActionEnum::Hold;
+        }
+
+        return $action;
     }
 }
